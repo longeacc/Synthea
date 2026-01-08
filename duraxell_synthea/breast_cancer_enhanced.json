@@ -1,0 +1,779 @@
+{
+  "name": "Enhanced Breast Cancer with Biomarkers",
+  "remarks": [
+    "Module enrichi pour cancer du sein incluant:",
+    "- Classification TNM complète",
+    "- Récepteurs hormonaux (ER, PR, HER2)",
+    "- Index Ki-67",
+    "- Stades clinique et pathologique",
+    "Adapté pour le projet DuraXell - LBA"
+  ],
+  "states": {
+    "Initial": {
+      "type": "Initial",
+      "direct_transition": "Age_Guard"
+    },
+    
+    "Age_Guard": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Age",
+        "operator": ">=",
+        "quantity": 40,
+        "unit": "years"
+      },
+      "direct_transition": "Delay_Until_Diagnosis"
+    },
+    
+    "Delay_Until_Diagnosis": {
+      "type": "Delay",
+      "range": {
+        "low": 1,
+        "high": 20,
+        "unit": "years"
+      },
+      "direct_transition": "Breast_Cancer_Diagnosis"
+    },
+    
+    "Breast_Cancer_Diagnosis": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "254837009",
+          "display": "Malignant neoplasm of breast"
+        }
+      ],
+      "distributed_transition": [
+        {
+          "transition": "Invasive_Ductal_Carcinoma",
+          "distribution": 0.70
+        },
+        {
+          "transition": "Invasive_Lobular_Carcinoma",
+          "distribution": 0.15
+        },
+        {
+          "transition": "Triple_Negative_Subtype",
+          "distribution": 0.15
+        }
+      ]
+    },
+    
+    "Invasive_Ductal_Carcinoma": {
+      "type": "SetAttribute",
+      "attribute": "breast_cancer_histology",
+      "value": "Invasive Ductal Carcinoma",
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Invasive_Lobular_Carcinoma": {
+      "type": "SetAttribute",
+      "attribute": "breast_cancer_histology",
+      "value": "Invasive Lobular Carcinoma",
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Triple_Negative_Subtype": {
+      "type": "SetAttribute",
+      "attribute": "breast_cancer_histology",
+      "value": "Triple Negative Breast Cancer",
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Determine_TNM_T_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "T_Stage_T1",
+          "distribution": 0.40
+        },
+        {
+          "transition": "T_Stage_T2",
+          "distribution": 0.35
+        },
+        {
+          "transition": "T_Stage_T3",
+          "distribution": 0.15
+        },
+        {
+          "transition": "T_Stage_T4",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "T_Stage_T1": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "23351008",
+        "display": "T1 - Tumor 20mm or less"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T2": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "67673008",
+        "display": "T2 - Tumor 20-50mm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T3": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "14410001",
+        "display": "T3 - Tumor more than 50mm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T4": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "65565005",
+        "display": "T4 - Tumor with chest wall extension"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "Determine_TNM_N_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "N_Stage_N0",
+          "distribution": 0.50
+        },
+        {
+          "transition": "N_Stage_N1",
+          "distribution": 0.30
+        },
+        {
+          "transition": "N_Stage_N2",
+          "distribution": 0.15
+        },
+        {
+          "transition": "N_Stage_N3",
+          "distribution": 0.05
+        }
+      ]
+    },
+    
+    "N_Stage_N0": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "62455006",
+        "display": "N0 - No regional lymph node metastasis"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N1": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "53623008",
+        "display": "N1 - 1-3 axillary lymph nodes involved"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N2": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "46059003",
+        "display": "N2 - 4-9 axillary lymph nodes involved"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N3": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "5856006",
+        "display": "N3 - 10 or more axillary lymph nodes involved"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "Determine_TNM_M_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "M_Stage_M0",
+          "distribution": 0.90
+        },
+        {
+          "transition": "M_Stage_M1",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "M_Stage_M0": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "30893008",
+        "display": "M0 - No distant metastasis"
+      },
+      "direct_transition": "ER_Status_Test"
+    },
+    
+    "M_Stage_M1": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "55440008",
+        "display": "M1 - Distant metastasis present"
+      },
+      "direct_transition": "ER_Status_Test"
+    },
+    
+    "ER_Status_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "ER_Positive",
+          "distribution": 0.75
+        },
+        {
+          "transition": "ER_Negative",
+          "distribution": 0.25
+        }
+      ]
+    },
+    
+    "ER_Positive": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "16112-5",
+          "display": "Estrogen receptor [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 70,
+        "high": 100
+      },
+      "direct_transition": "PR_Status_Test"
+    },
+    
+    "ER_Negative": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "16112-5",
+          "display": "Estrogen receptor [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 0,
+        "high": 10
+      },
+      "direct_transition": "PR_Status_Test"
+    },
+    
+    "PR_Status_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "PR_Positive",
+          "distribution": 0.70
+        },
+        {
+          "transition": "PR_Negative",
+          "distribution": 0.30
+        }
+      ]
+    },
+    
+    "PR_Positive": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "16113-3",
+          "display": "Progesterone receptor [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 60,
+        "high": 100
+      },
+      "direct_transition": "HER2_Status_Test"
+    },
+    
+    "PR_Negative": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "16113-3",
+          "display": "Progesterone receptor [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 0,
+        "high": 10
+      },
+      "direct_transition": "HER2_Status_Test"
+    },
+    
+    "HER2_Status_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "HER2_Positive",
+          "distribution": 0.20
+        },
+        {
+          "transition": "HER2_Negative",
+          "distribution": 0.80
+        }
+      ]
+    },
+    
+    "HER2_Positive": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "48676-1",
+          "display": "HER2 [Interpretation] in Tissue by Immunohistochemistry"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "10828004",
+        "display": "Positive (3+)"
+      },
+      "direct_transition": "Ki67_Index_Test"
+    },
+    
+    "HER2_Negative": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "48676-1",
+          "display": "HER2 [Interpretation] in Tissue by Immunohistochemistry"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "260385009",
+        "display": "Negative (0 or 1+)"
+      },
+      "direct_transition": "Ki67_Index_Test"
+    },
+    
+    "Ki67_Index_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Ki67_Low",
+          "distribution": 0.40
+        },
+        {
+          "transition": "Ki67_Intermediate",
+          "distribution": 0.35
+        },
+        {
+          "transition": "Ki67_High",
+          "distribution": 0.25
+        }
+      ]
+    },
+    
+    "Ki67_Low": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85319-2",
+          "display": "KI-67 Ag [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 5,
+        "high": 14
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "Ki67_Intermediate": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85319-2",
+          "display": "KI-67 Ag [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 15,
+        "high": 30
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "Ki67_High": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85319-2",
+          "display": "KI-67 Ag [Interpretation] in Tissue"
+        }
+      ],
+      "range": {
+        "low": 31,
+        "high": 80
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "Clinical_Stage_Determination": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Clinical_Stage_I",
+          "distribution": 0.45
+        },
+        {
+          "transition": "Clinical_Stage_II",
+          "distribution": 0.30
+        },
+        {
+          "transition": "Clinical_Stage_III",
+          "distribution": 0.15
+        },
+        {
+          "transition": "Clinical_Stage_IV",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "Clinical_Stage_I": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60333009",
+        "display": "Stage I breast cancer"
+      },
+      "direct_transition": "Pathological_Stage_Determination"
+    },
+    
+    "Clinical_Stage_II": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60334003",
+        "display": "Stage II breast cancer"
+      },
+      "direct_transition": "Pathological_Stage_Determination"
+    },
+    
+    "Clinical_Stage_III": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60335002",
+        "display": "Stage III breast cancer"
+      },
+      "direct_transition": "Pathological_Stage_Determination"
+    },
+    
+    "Clinical_Stage_IV": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60336001",
+        "display": "Stage IV breast cancer"
+      },
+      "direct_transition": "Pathological_Stage_Determination"
+    },
+    
+    "Pathological_Stage_Determination": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Pathological_Stage_IA",
+          "distribution": 0.35
+        },
+        {
+          "transition": "Pathological_Stage_IIA",
+          "distribution": 0.25
+        },
+        {
+          "transition": "Pathological_Stage_IIB",
+          "distribution": 0.20
+        },
+        {
+          "transition": "Pathological_Stage_IIIA",
+          "distribution": 0.12
+        },
+        {
+          "transition": "Pathological_Stage_IIIB",
+          "distribution": 0.08
+        }
+      ]
+    },
+    
+    "Pathological_Stage_IA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21902-2",
+          "display": "Stage group.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222806003",
+        "display": "Stage IA breast cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Pathological_Stage_IIA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21902-2",
+          "display": "Stage group.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222807007",
+        "display": "Stage IIA breast cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Pathological_Stage_IIB": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21902-2",
+          "display": "Stage group.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222808002",
+        "display": "Stage IIB breast cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Pathological_Stage_IIIA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21902-2",
+          "display": "Stage group.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222809005",
+        "display": "Stage IIIA breast cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Pathological_Stage_IIIB": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21902-2",
+          "display": "Stage group.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222810000",
+        "display": "Stage IIIB breast cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Terminal": {
+      "type": "Terminal"
+    }
+  }
+}

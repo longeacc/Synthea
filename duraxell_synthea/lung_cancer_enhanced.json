@@ -1,0 +1,1069 @@
+{
+  "name": "Enhanced Lung Cancer with Biomarkers",
+  "remarks": [
+    "Module enrichi pour cancer du poumon incluant:",
+    "- Classification TNM complète",
+    "- Histologie détaillée (Adénocarcinome, Carcinome épidermoïde, etc.)",
+    "- Biomarqueurs moléculaires (EGFR, ALK, PD-L1)",
+    "- Tests de fonction pulmonaire (FEV1, DLCO)",
+    "Adapté pour le projet DuraXell - LBA"
+  ],
+  "states": {
+    "Initial": {
+      "type": "Initial",
+      "direct_transition": "Age_Guard"
+    },
+    
+    "Age_Guard": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Age",
+        "operator": ">=",
+        "quantity": 45,
+        "unit": "years"
+      },
+      "direct_transition": "Smoking_History_Check"
+    },
+    
+    "Smoking_History_Check": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Delay_Until_Diagnosis_Smoker",
+          "distribution": 0.80
+        },
+        {
+          "transition": "Delay_Until_Diagnosis_NonSmoker",
+          "distribution": 0.20
+        }
+      ]
+    },
+    
+    "Delay_Until_Diagnosis_Smoker": {
+      "type": "Delay",
+      "range": {
+        "low": 1,
+        "high": 15,
+        "unit": "years"
+      },
+      "direct_transition": "Lung_Cancer_Diagnosis"
+    },
+    
+    "Delay_Until_Diagnosis_NonSmoker": {
+      "type": "Delay",
+      "range": {
+        "low": 1,
+        "high": 10,
+        "unit": "years"
+      },
+      "direct_transition": "Lung_Cancer_Diagnosis"
+    },
+    
+    "Lung_Cancer_Diagnosis": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "254637007",
+          "display": "Non-small cell lung cancer"
+        }
+      ],
+      "direct_transition": "Determine_Histology"
+    },
+    
+    "Determine_Histology": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Adenocarcinoma",
+          "distribution": 0.50
+        },
+        {
+          "transition": "Squamous_Cell_Carcinoma",
+          "distribution": 0.30
+        },
+        {
+          "transition": "Large_Cell_Carcinoma",
+          "distribution": 0.10
+        },
+        {
+          "transition": "Small_Cell_Lung_Cancer",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "Adenocarcinoma": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "59847-4",
+          "display": "Histology [Type] in Cancer specimen"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "35917007",
+        "display": "Adenocarcinoma of lung"
+      },
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Squamous_Cell_Carcinoma": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "59847-4",
+          "display": "Histology [Type] in Cancer specimen"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "45410002",
+        "display": "Squamous cell carcinoma of lung"
+      },
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Large_Cell_Carcinoma": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "59847-4",
+          "display": "Histology [Type] in Cancer specimen"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "82271004",
+        "display": "Large cell carcinoma of lung"
+      },
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Small_Cell_Lung_Cancer": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "59847-4",
+          "display": "Histology [Type] in Cancer specimen"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "254632001",
+        "display": "Small cell carcinoma of lung"
+      },
+      "direct_transition": "Determine_TNM_T_Stage"
+    },
+    
+    "Determine_TNM_T_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "T_Stage_T1a",
+          "distribution": 0.25
+        },
+        {
+          "transition": "T_Stage_T1b",
+          "distribution": 0.20
+        },
+        {
+          "transition": "T_Stage_T2a",
+          "distribution": 0.20
+        },
+        {
+          "transition": "T_Stage_T2b",
+          "distribution": 0.15
+        },
+        {
+          "transition": "T_Stage_T3",
+          "distribution": 0.12
+        },
+        {
+          "transition": "T_Stage_T4",
+          "distribution": 0.08
+        }
+      ]
+    },
+    
+    "T_Stage_T1a": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222589007",
+        "display": "T1a - Tumor ≤1 cm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T1b": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222590003",
+        "display": "T1b - Tumor >1cm but ≤2cm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T2a": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222592006",
+        "display": "T2a - Tumor >3cm but ≤4cm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T2b": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222593001",
+        "display": "T2b - Tumor >4cm but ≤5cm"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T3": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222594007",
+        "display": "T3 - Tumor >5cm but ≤7cm or invasion"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "T_Stage_T4": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21905-5",
+          "display": "Primary tumor.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222595008",
+        "display": "T4 - Tumor >7cm or invasion of mediastinum"
+      },
+      "direct_transition": "Determine_TNM_N_Stage"
+    },
+    
+    "Determine_TNM_N_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "N_Stage_N0",
+          "distribution": 0.40
+        },
+        {
+          "transition": "N_Stage_N1",
+          "distribution": 0.30
+        },
+        {
+          "transition": "N_Stage_N2",
+          "distribution": 0.20
+        },
+        {
+          "transition": "N_Stage_N3",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "N_Stage_N0": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "62455006",
+        "display": "N0 - No regional lymph node metastasis"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N1": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "53623008",
+        "display": "N1 - Ipsilateral peribronchial/hilar nodes"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N2": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "46059003",
+        "display": "N2 - Ipsilateral mediastinal/subcarinal nodes"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "N_Stage_N3": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21906-3",
+          "display": "Regional lymph nodes.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "5856006",
+        "display": "N3 - Contralateral or supraclavicular nodes"
+      },
+      "direct_transition": "Determine_TNM_M_Stage"
+    },
+    
+    "Determine_TNM_M_Stage": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "M_Stage_M0",
+          "distribution": 0.70
+        },
+        {
+          "transition": "M_Stage_M1a",
+          "distribution": 0.15
+        },
+        {
+          "transition": "M_Stage_M1b",
+          "distribution": 0.10
+        },
+        {
+          "transition": "M_Stage_M1c",
+          "distribution": 0.05
+        }
+      ]
+    },
+    
+    "M_Stage_M0": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "30893008",
+        "display": "M0 - No distant metastasis"
+      },
+      "direct_transition": "Pulmonary_Function_FEV1"
+    },
+    
+    "M_Stage_M1a": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222596009",
+        "display": "M1a - Separate tumor nodules in contralateral lobe"
+      },
+      "direct_transition": "Pulmonary_Function_FEV1"
+    },
+    
+    "M_Stage_M1b": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222597000",
+        "display": "M1b - Single extrathoracic metastasis"
+      },
+      "direct_transition": "Pulmonary_Function_FEV1"
+    },
+    
+    "M_Stage_M1c": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21907-1",
+          "display": "Distant metastases.pathology Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "1222598005",
+        "display": "M1c - Multiple extrathoracic metastases"
+      },
+      "direct_transition": "Pulmonary_Function_FEV1"
+    },
+    
+    "Pulmonary_Function_FEV1": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "FEV1_Normal",
+          "distribution": 0.20
+        },
+        {
+          "transition": "FEV1_Mild_Obstruction",
+          "distribution": 0.30
+        },
+        {
+          "transition": "FEV1_Moderate_Obstruction",
+          "distribution": 0.35
+        },
+        {
+          "transition": "FEV1_Severe_Obstruction",
+          "distribution": 0.15
+        }
+      ]
+    },
+    
+    "FEV1_Normal": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "20150-9",
+          "display": "FEV1 predicted"
+        }
+      ],
+      "range": {
+        "low": 80,
+        "high": 100
+      },
+      "direct_transition": "Pulmonary_Function_DLCO"
+    },
+    
+    "FEV1_Mild_Obstruction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "20150-9",
+          "display": "FEV1 predicted"
+        }
+      ],
+      "range": {
+        "low": 60,
+        "high": 79
+      },
+      "direct_transition": "Pulmonary_Function_DLCO"
+    },
+    
+    "FEV1_Moderate_Obstruction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "20150-9",
+          "display": "FEV1 predicted"
+        }
+      ],
+      "range": {
+        "low": 40,
+        "high": 59
+      },
+      "direct_transition": "Pulmonary_Function_DLCO"
+    },
+    
+    "FEV1_Severe_Obstruction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "20150-9",
+          "display": "FEV1 predicted"
+        }
+      ],
+      "range": {
+        "low": 20,
+        "high": 39
+      },
+      "direct_transition": "Pulmonary_Function_DLCO"
+    },
+    
+    "Pulmonary_Function_DLCO": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "DLCO_Normal",
+          "distribution": 0.25
+        },
+        {
+          "transition": "DLCO_Mild_Reduction",
+          "distribution": 0.35
+        },
+        {
+          "transition": "DLCO_Moderate_Reduction",
+          "distribution": 0.30
+        },
+        {
+          "transition": "DLCO_Severe_Reduction",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "DLCO_Normal": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "19911-7",
+          "display": "DLCO predicted"
+        }
+      ],
+      "range": {
+        "low": 75,
+        "high": 100
+      },
+      "direct_transition": "EGFR_Mutation_Test"
+    },
+    
+    "DLCO_Mild_Reduction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "19911-7",
+          "display": "DLCO predicted"
+        }
+      ],
+      "range": {
+        "low": 60,
+        "high": 74
+      },
+      "direct_transition": "EGFR_Mutation_Test"
+    },
+    
+    "DLCO_Moderate_Reduction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "19911-7",
+          "display": "DLCO predicted"
+        }
+      ],
+      "range": {
+        "low": 40,
+        "high": 59
+      },
+      "direct_transition": "EGFR_Mutation_Test"
+    },
+    
+    "DLCO_Severe_Reduction": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "% predicted",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "19911-7",
+          "display": "DLCO predicted"
+        }
+      ],
+      "range": {
+        "low": 20,
+        "high": 39
+      },
+      "direct_transition": "EGFR_Mutation_Test"
+    },
+    
+    "EGFR_Mutation_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "EGFR_Exon19_Deletion",
+          "distribution": 0.15
+        },
+        {
+          "transition": "EGFR_L858R_Mutation",
+          "distribution": 0.10
+        },
+        {
+          "transition": "EGFR_T790M_Mutation",
+          "distribution": 0.05
+        },
+        {
+          "transition": "EGFR_Wild_Type",
+          "distribution": 0.70
+        }
+      ]
+    },
+    
+    "EGFR_Exon19_Deletion": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "81691-4",
+          "display": "EGFR gene mutation [Identifier] in Blood or Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "723476003",
+        "display": "EGFR Exon 19 deletion"
+      },
+      "direct_transition": "ALK_Mutation_Test"
+    },
+    
+    "EGFR_L858R_Mutation": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "81691-4",
+          "display": "EGFR gene mutation [Identifier] in Blood or Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "723477007",
+        "display": "EGFR L858R mutation"
+      },
+      "direct_transition": "ALK_Mutation_Test"
+    },
+    
+    "EGFR_T790M_Mutation": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "81691-4",
+          "display": "EGFR gene mutation [Identifier] in Blood or Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "723478002",
+        "display": "EGFR T790M mutation"
+      },
+      "direct_transition": "ALK_Mutation_Test"
+    },
+    
+    "EGFR_Wild_Type": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "81691-4",
+          "display": "EGFR gene mutation [Identifier] in Blood or Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "416237000",
+        "display": "Wild type (no mutation detected)"
+      },
+      "direct_transition": "ALK_Mutation_Test"
+    },
+    
+    "ALK_Mutation_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "ALK_Positive",
+          "distribution": 0.05
+        },
+        {
+          "transition": "ALK_Negative",
+          "distribution": 0.95
+        }
+      ]
+    },
+    
+    "ALK_Positive": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "80546-6",
+          "display": "ALK gene rearrangement [Presence] in Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "10828004",
+        "display": "Positive - ALK rearrangement detected"
+      },
+      "direct_transition": "PDL1_Expression_Test"
+    },
+    
+    "ALK_Negative": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "80546-6",
+          "display": "ALK gene rearrangement [Presence] in Tissue"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "260385009",
+        "display": "Negative - No ALK rearrangement"
+      },
+      "direct_transition": "PDL1_Expression_Test"
+    },
+    
+    "PDL1_Expression_Test": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "PDL1_High_Expression",
+          "distribution": 0.30
+        },
+        {
+          "transition": "PDL1_Low_Expression",
+          "distribution": 0.40
+        },
+        {
+          "transition": "PDL1_Negative",
+          "distribution": 0.30
+        }
+      ]
+    },
+    
+    "PDL1_High_Expression": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85147-7",
+          "display": "PD-L1 by Immune stain"
+        }
+      ],
+      "range": {
+        "low": 50,
+        "high": 100
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "PDL1_Low_Expression": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85147-7",
+          "display": "PD-L1 by Immune stain"
+        }
+      ],
+      "range": {
+        "low": 1,
+        "high": 49
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "PDL1_Negative": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "%",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "85147-7",
+          "display": "PD-L1 by Immune stain"
+        }
+      ],
+      "exact": {
+        "quantity": 0
+      },
+      "direct_transition": "Clinical_Stage_Determination"
+    },
+    
+    "Clinical_Stage_Determination": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "transition": "Clinical_Stage_IA",
+          "distribution": 0.25
+        },
+        {
+          "transition": "Clinical_Stage_IB",
+          "distribution": 0.20
+        },
+        {
+          "transition": "Clinical_Stage_IIA",
+          "distribution": 0.15
+        },
+        {
+          "transition": "Clinical_Stage_IIB",
+          "distribution": 0.15
+        },
+        {
+          "transition": "Clinical_Stage_IIIA",
+          "distribution": 0.15
+        },
+        {
+          "transition": "Clinical_Stage_IV",
+          "distribution": 0.10
+        }
+      ]
+    },
+    
+    "Clinical_Stage_IA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60333009",
+        "display": "Stage IA lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Clinical_Stage_IB": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60334003",
+        "display": "Stage IB lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Clinical_Stage_IIA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60335002",
+        "display": "Stage IIA lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Clinical_Stage_IIB": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60336001",
+        "display": "Stage IIB lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Clinical_Stage_IIIA": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60337005",
+        "display": "Stage IIIA lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Clinical_Stage_IV": {
+      "type": "Observation",
+      "category": "laboratory",
+      "unit": "",
+      "codes": [
+        {
+          "system": "LOINC",
+          "code": "21908-9",
+          "display": "Stage group.clinical Cancer"
+        }
+      ],
+      "value_code": {
+        "system": "SNOMED-CT",
+        "code": "60338000",
+        "display": "Stage IV lung cancer"
+      },
+      "direct_transition": "Terminal"
+    },
+    
+    "Terminal": {
+      "type": "Terminal"
+    }
+  }
+}
