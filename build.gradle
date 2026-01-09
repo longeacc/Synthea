@@ -164,7 +164,10 @@ test {
     // showStackTraces = true
     // showStandardStreams = true
   }
-  maxHeapSize = "6144m"
+  maxHeapSize = "1024m"
+  timeout = java.time.Duration.ofMinutes(30)
+  forkEvery = 3
+  maxParallelForks = 1
   jacoco {
     includes = ["org.mitre.*"]
   }

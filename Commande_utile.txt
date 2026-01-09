@@ -1,0 +1,5 @@
+## pour lancer le build sans que le process s'arrête à chaque erreurs. 
+
+/workspaces/Synthea && ./gradlew build --no-daemon --continue 2>&1 | tail -50
+
+cd /workspaces/Synthea && ./gradlew build -x test --no-daemon 2>&1 | grep -E "BUILD|Task" | tail -20

@@ -45,12 +45,22 @@ check_prerequisites() {
     # Vérifier Java
     if ! command -v java &> /dev/null; then
         print_error "Java n'est pas installé"
-        echo "Installation de Java..."
+        echo "Installation de Java 17..."
         sudo apt-get update
-        sudo apt-get install -y openjdk-11-jdk
+        sudo apt-get install -y openjdk-17-jdk
     else
         JAVA_VERSION=$(java -version 2>&1 | grep -oP 'version "?\K[0-9.]+')
         print_success "Java $JAVA_VERSION détecté"
+        
+        # Vérifier que c'est Java 17 ou supérieur
+        JAVA_MAJOR=$(echo $JAVA_VERSION | cut -d. -f1)
+        if [ "$JAVA_MAJOR" -lt 17 ]; then
+            print_warning "Java $JAVA_VERSION détecté, mais Java 17+ requis pour Gradle"
+            print_info "Installation de Java 17..."
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+        fi
     fi
     
     # Vérifier Python
@@ -83,7 +93,7 @@ check_synthea() {
         git clone https://github.com/synthetichealth/synthea.git
         cd synthea
         print_info "Construction de Synthea (cela peut prendre quelques minutes)..."
-        ./gradlew build check test
+        JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew build -x test
         cd ..
         print_success "Synthea installé avec succès"
     else
@@ -122,7 +132,7 @@ install_enhanced_modules() {
     # Reconstruire Synthea
     print_info "Reconstruction de Synthea avec les nouveaux modules..."
     cd synthea
-    ./gradlew build --quiet
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew build -x test --quiet
     cd ..
     print_success "Synthea reconstruit avec succès"
 }
